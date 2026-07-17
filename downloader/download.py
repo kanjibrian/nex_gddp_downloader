@@ -192,7 +192,7 @@ class Downloader:
 
         self.log.info("[DOWNLOAD] %s", destination.name)
 
-        self._download_stream(
+        used_fallback = self._download_stream(
             url=file.url,
             destination=destination,
             initial_bytes=initial_bytes,
@@ -202,8 +202,15 @@ class Downloader:
         # --- MD5 verification --------------------------------------
 
         if self.config.verify_md5 and file.md5:
-            verify_md5(destination, file.md5)
-            self.log.debug("[VERIFIED] %s", destination.name)
+            if used_fallback:
+                self.log.warning(
+                    "[SKIP-MD5] %s — downloaded via versioned URL, "
+                    "catalogue checksum may not match",
+                    destination.name,
+                )
+            else:
+                verify_md5(destination, file.md5)
+                self.log.debug("[VERIFIED] %s", destination.name)
 
         with self._lock:
             self._downloaded += 1
@@ -218,9 +225,12 @@ class Downloader:
         destination: Path,
         initial_bytes: int = 0,
         extra_headers: dict[str, str] | None = None,
-    ) -> None:
+    ) -> bool:
         """
         Download a file using chunked streaming with a progress bar.
+
+        Returns True if a fallback (versioned) URL was used instead
+        of the original catalogue URL.
         """
 
         response = self.session.get(
@@ -229,6 +239,34 @@ class Downloader:
             timeout=self.config.timeout,
             headers=extra_headers or {},
         )
+
+        # NASA renamed files with version suffixes (e.g. _v2.0.nc)
+        # but their CSV catalog still lists old URLs.  On a 404 we
+        # try common version-suffixed variants before giving up.
+        used_fallback = False
+        if response.status_code == 404:
+            for version in ("_v2.0", "_v1.1", "_v1.0"):
+                # Only replace the *last* ".nc" (the file extension),
+                # not every occurrence (e.g. ".nccs" in the hostname).
+                pos = url.rfind(".nc")
+                alt_url = f"{url[:pos]}{version}.nc" if pos != -1 else url
+                if alt_url == url:
+                    continue
+                alt_response = self.session.get(
+                    alt_url,
+                    stream=True,
+                    timeout=self.config.timeout,
+                    headers=extra_headers or {},
+                )
+                if alt_response.status_code != 404:
+                    self.log.info(
+                        "[REDIRECT] %s → %s",
+                        url.rsplit("/", 1)[-1],
+                        alt_url.rsplit("/", 1)[-1],
+                    )
+                    response = alt_response
+                    used_fallback = True
+                    break
 
         response.raise_for_status()
 
@@ -259,3 +297,5 @@ class Downloader:
                         progress.update(len(chunk))
         finally:
             progress.close()
+
+        return used_fallback

@@ -22,7 +22,7 @@ retry_delay: 5
 timeout: 120
 
 # Chunk size (MB)
-chunk_size_mb: 8
+chunk_size_mb: 100
 
 # Verify MD5 checksum
 verify_md5: true
@@ -42,20 +42,21 @@ preserve_structure: true
 
 variables:
   - tas
-  - pr
+  # - pr
 
 models:
   - ACCESS-CM2
-  - CanESM5
+  # - CanESM5
 
 scenarios:
   - historical
-  - ssp245
-  - ssp585
+  # - ssp245
+  # - ssp585
 
 ensembles:
   - r1i1p1f1
 
 years:
   start: 1950
-  end: 2100
+  # end: 2100
+  end: 1951

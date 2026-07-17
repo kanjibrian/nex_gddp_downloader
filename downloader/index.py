@@ -57,10 +57,11 @@ def read_catalog(config: Config) -> list[ClimateFile]:
 
     df = pd.read_csv(
         csv_file,
-        usecols=["url", "md5"]
+        usecols=["fileMD5", "fileUrl"],
+        skipinitialspace=True,
     )
 
-    files = [parse_row(row.url, row.md5) for row in df.itertuples(index=False)]
+    files = [parse_row(row.fileUrl, row.fileMD5) for row in df.itertuples(index=False)]
 
     return Catalog(files)
 
