@@ -1,0 +1,61 @@
+# =============================================================================
+# NASA NEX-GDDP-CMIP6 Downloader Configuration
+# =============================================================================
+
+# Official NASA file index
+catalog_csv: "https://ds.nccs.nasa.gov/thredds/fileServer/AMES/NEX/GDDP-CMIP6/gddp-cmip6-thredds-fileserver.csv"
+
+# Output folder
+download_directory: "./downloads"
+
+# Logging folder
+log_directory: "./logs"
+
+# Number of simultaneous downloads
+workers: 8
+
+# Retry settings
+retry_attempts: 5
+retry_delay: 5
+
+# Network timeout (seconds)
+timeout: 120
+
+# Chunk size (MB)
+chunk_size_mb: 8
+
+# Verify MD5 checksum
+verify_md5: true
+
+# Resume interrupted downloads
+resume_downloads: true
+
+# Skip existing files
+skip_existing: true
+
+# Preserve NASA folder structure
+preserve_structure: true
+
+################################################################################
+# Filters
+################################################################################
+
+variables:
+  - tas
+  - pr
+
+models:
+  - ACCESS-CM2
+  - CanESM5
+
+scenarios:
+  - historical
+  - ssp245
+  - ssp585
+
+ensembles:
+  - r1i1p1f1
+
+years:
+  start: 1950
+  end: 2100
