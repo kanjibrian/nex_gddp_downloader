@@ -1,0 +1,7 @@
+# Large geospatial data artifacts
+*.tif
+*.tiff
+*.nc
+*.TIF
+*.TIFF
+*.NC
