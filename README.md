@@ -18,19 +18,16 @@ A high-performance downloader for the NASA NEX-GDDP-CMIP6 climate dataset.
     - Year range
 - Preserves NASA directory structure
 
-## Installation
+## Usage
+
+- Clone or download this repository into your local computer, and make the repository folder your working directory.
+
+### Installation
 
 ```bash
 pip install -r requirements.txt
 ```
-
-## Usage
-
-```bash
-python main.py
-```
-
-## Configuration
+### Configuration
 
 Edit `settings.yml` to choose:
 
@@ -43,6 +40,13 @@ Edit `settings.yml` to choose:
 - **download_directory** — where files are saved
 - **verify_md5** — enable/disable MD5 verification
 - **resume_downloads** — enable/disable download resumption
+
+### Running
+
+```bash
+python main.py
+```
+- All downloads will be saved in the default download directory in this repository.
 
 ## Project Structure
 
